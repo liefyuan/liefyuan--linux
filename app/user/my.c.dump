@@ -1,0 +1,105 @@
+/*
+ * my_wifi.c
+ *
+ *  Created on: 2017年3月22日
+ *      Author: yuanlifu
+ */
+#include "my.h"
+#include "osapi.h"
+#include "user_interface.h"
+#include "driver/uart.h"
+
+os_event_t    my_recvTaskQueue[my_recvTaskQueueLen];
+os_event_t    my_procTaskQueue[my_procTaskQueueLen];
+
+my_stateType  my_state;
+BOOL echoFlag = TRUE;
+
+static void my_procTask(os_event_t *events);
+static void my_recvTask(os_event_t *events);
+
+/**
+  * @brief  Uart receive task.
+  * @param  events: contain the uart receive data
+  * @retval None
+  */
+static void ICACHE_FLASH_ATTR
+my_recvTask(os_event_t *events)
+{
+	static uint8_t atHead[2];
+	static uint8_t *pCmdLine;
+	uint8_t temp;
+
+	while(READ_PERI_REG(UART_STATUS(UART0)) & (UART_RXFIFO_CNT << UART_RXFIFO_CNT_S))
+	{
+		if(my_state != my_statIpTraning)
+		{
+		}
+
+	   switch(my_state)
+	   {
+		    case my_statIdle: //serch "AT" head
+
+		      break;
+
+		    case my_statRecving: //push receive data to cmd line
+
+		      break;
+
+		    case my_statProcess: //process data
+
+		      break;
+
+		    case my_statIpSending:
+
+		      break;
+
+		    case my_statIpSended: //send data
+
+		      break;
+
+		    case my_statIpTraning:
+
+		      break;
+		    default:
+
+		      break;
+		 }
+	}
+	if(UART_RXFIFO_FULL_INT_ST == (READ_PERI_REG(UART_INT_ST(UART0)) & UART_RXFIFO_FULL_INT_ST))
+	{
+		WRITE_PERI_REG(UART_INT_CLR(UART0), UART_RXFIFO_FULL_INT_CLR);
+	}
+	else if(UART_RXFIFO_TOUT_INT_ST == (READ_PERI_REG(UART_INT_ST(UART0)) & UART_RXFIFO_TOUT_INT_ST))
+	{
+		WRITE_PERI_REG(UART_INT_CLR(UART0), UART_RXFIFO_TOUT_INT_CLR);
+	}
+	ETS_UART_INTR_ENABLE();
+}
+
+/**
+  * @brief  Task of process command or txdata.
+  * @param  events: no used
+  * @retval None
+  */
+static void ICACHE_FLASH_ATTR
+my_procTask(os_event_t *events)
+{
+	if(my_state == my_statProcess)
+	{
+	}
+	else if(my_state == my_statIpSended)
+	{
+	}
+	else if(my_state == my_statIpTraning)
+	{
+	}
+}
+
+
+void ICACHE_FLASH_ATTR
+my_init(void){
+	system_os_task(my_recvTask, my_recvTaskPrio, my_recvTaskQueue, my_recvTaskQueueLen);
+	system_os_task(my_procTask, my_procTaskPrio, my_procTaskQueue, my_procTaskQueueLen);
+}
+
